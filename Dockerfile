@@ -1,25 +1,25 @@
-# Étape 1 : Builder Spring Boot
+# Builder Spring Boot
 FROM eclipse-temurin:21-jdk AS builder-spring
 WORKDIR /app
 COPY civilink/ ./civilink/
 WORKDIR /app/civilink
 RUN ./mvnw clean package -DskipTests
 
-# Étape 2 : Builder Flutter Web
+# Builder Flutter Web
 FROM cirrusci/flutter:stable AS builder-flutter
 WORKDIR /app
 COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
 WORKDIR /app/flutter_app
 RUN flutter build web
 
-# Étape 3 : Image finale
+# Image finale
 FROM eclipse-temurin:21-jdk-alpine
 WORKDIR /app
 
 # Copier backend
 COPY --from=builder-spring /app/civilink/target/civilink-0.0.1-SNAPSHOT.jar ./app.jar
 
-# Copier frontend Flutter Web dans Spring Boot static
+# Copier frontend dans Spring Boot static
 COPY --from=builder-flutter /app/flutter_app/build/web ./frontend
 
 EXPOSE 8080
