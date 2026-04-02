@@ -17,12 +17,8 @@ FROM cirrusci/flutter:stable AS builder-flutter
 
 WORKDIR /app
 
-# Créer un utilisateur non-root pour Flutter
-RUN useradd -m flutteruser
-USER flutteruser
-
-# Copier le projet Flutter avec les droits corrects
-COPY --chown=flutteruser:flutteruser mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
+# Copier le projet Flutter (root nécessaire pour Flutter SDK)
+COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
 WORKDIR /app/flutter_app
 
 # Build Flutter Web pour production
@@ -38,7 +34,7 @@ WORKDIR /app
 # Copier le backend Spring Boot
 COPY --from=builder-spring /app/civilink/target/civilink-0.0.1-SNAPSHOT.jar ./app.jar
 
-# Copier le frontend Flutter intégré dans Spring Boot
+# Copier le frontend Flutter dans Spring Boot
 COPY --from=builder-flutter /app/flutter_app/build/web ./frontend
 
 # Exposer le port pour Railway
