@@ -16,9 +16,7 @@ WORKDIR /app
 # Copier le projet Flutter
 COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
 WORKDIR /app/flutter_app
-# Assurer que Flutter est à jour et prêt
-RUN flutter channel stable && flutter upgrade && flutter doctor -v
-# Build pour le web en release
+# Build pour le web en release (plus besoin de flutter channel / upgrade / doctor)
 RUN flutter build web --release
 
 # =========================
