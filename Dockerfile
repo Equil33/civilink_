@@ -2,9 +2,11 @@
 # Étape 1 : Builder Spring Boot
 # =========================
 FROM eclipse-temurin:21-jdk AS builder-spring
+
 WORKDIR /app
 COPY civilink/ ./civilink/
 WORKDIR /app/civilink
+
 # Build Spring Boot sans tests
 RUN ./mvnw clean package -DskipTests
 
@@ -12,26 +14,34 @@ RUN ./mvnw clean package -DskipTests
 # Étape 2 : Builder Flutter Web
 # =========================
 FROM cirrusci/flutter:stable AS builder-flutter
+
 WORKDIR /app
-# Copier le projet Flutter
-COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
+
+# Créer un utilisateur non-root pour Flutter
+RUN useradd -m flutteruser
+USER flutteruser
+
+# Copier le projet Flutter avec les droits corrects
+COPY --chown=flutteruser:flutteruser mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
 WORKDIR /app/flutter_app
-# Build pour le web en release (plus besoin de flutter channel / upgrade / doctor)
+
+# Build Flutter Web pour production
 RUN flutter build web --release
 
 # =========================
 # Étape 3 : Image finale
 # =========================
 FROM eclipse-temurin:21-jdk-alpine
+
 WORKDIR /app
 
 # Copier le backend Spring Boot
 COPY --from=builder-spring /app/civilink/target/civilink-0.0.1-SNAPSHOT.jar ./app.jar
 
-# Copier le frontend Flutter dans Spring Boot static (frontend)
+# Copier le frontend Flutter intégré dans Spring Boot
 COPY --from=builder-flutter /app/flutter_app/build/web ./frontend
 
-# Exposer le port du backend
+# Exposer le port pour Railway
 EXPOSE 8080
 
 # Lancer l’application Spring Boot
