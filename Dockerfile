@@ -9,9 +9,9 @@ WORKDIR /app/civilink
 RUN ./mvnw clean package -DskipTests
 
 # =========================
-# Étape 2 : Builder Flutter Web
+# Étape 2 : Builder Flutter Web compatible Dart 3.13+
 # =========================
-FROM cirrusci/flutter:stable AS builder-flutter
+FROM cirrusci/flutter:3.13.0 AS builder-flutter
 
 WORKDIR /app
 COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
