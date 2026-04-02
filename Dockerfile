@@ -8,7 +8,7 @@ RUN ./mvnw clean package -DskipTests
 # Étape 2 : Builder Flutter Web
 FROM cirrusci/flutter:stable AS builder-flutter
 WORKDIR /app
-COPY "mon-quartier-vigilant-main (1)/mon-quartier-vigilant-main/" ./flutter_app/
+COPY mon-quartier-vigilant-main-1/mon-quartier-vigilant-main/ ./flutter_app/
 WORKDIR /app/flutter_app
 RUN flutter build web
 
